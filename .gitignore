@@ -35,3 +35,5 @@ yarn-error.*
 *.tsbuildinfo
 pc-api-8077808323240131981-400-ef6e75bdade8.json
 .env
+credentials.json
+android/*
