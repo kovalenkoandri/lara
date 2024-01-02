@@ -4,6 +4,7 @@
     "scheme": "lara",
     "name": "lara",
     "slug": "lara",
+    "privacy": "public",
     "platforms": ["android"],
     "orientation": "portrait",
     "icon": "./src/assets/icon1.png",
@@ -17,8 +18,8 @@
     },
     "assetBundlePatterns": ["**/*"],
     "android": {
-      "package": "com.lara",
-      "versionCode": 1,
+      "package": "com.kovalenkoandrii.lara",
+      "versionCode": 2,
       "permissions": [
         "CAMERA",
         "WRITE_EXTERNAL_STORAGE",
