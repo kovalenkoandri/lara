@@ -1,10 +1,9 @@
 {
   "expo": {
-    "name": "my-app",
-    "slug": "my-app",
+    "name": "lara",
+    "slug": "lara",
     "version": "1.0.0",
-    "assetBundlePatterns": [
-      "**/*"
-    ]
+    "userInterfaceStyle": "dark",
+    "assetBundlePatterns": ["**/*"]
   }
 }
