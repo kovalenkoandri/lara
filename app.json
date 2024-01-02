@@ -1,9 +1,44 @@
 {
   "expo": {
+    "jsEngine": "hermes",
+    "scheme": "lara",
     "name": "lara",
     "slug": "lara",
-    "version": "1.0.0",
-    "userInterfaceStyle": "dark",
-    "assetBundlePatterns": ["**/*"]
+    "platforms": ["android"],
+    "orientation": "portrait",
+    "icon": "./src/assets/icon1.png",
+    "splash": {
+      "image": "./src/assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#353542"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": ["**/*"],
+    "android": {
+      "package": "com.lara",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "WRITE_EXTERNAL_STORAGE",
+        "USE_BIOMETRIC",
+        "USE_FINGERPRINT"
+      ],
+      "softwareKeyboardLayoutMode": "pan"
+    },
+    "notification": {
+      "icon": "./src/assets/icon2.png"
+    },
+    "description": "Simple browser based on react-native-webview",
+    "owner": "kovalenkoandrii",
+    "plugins": [
+      [
+        "expo-updates",
+        {
+          "username": "kovalenkoandrii"
+        }
+      ]
+    ]
   }
 }

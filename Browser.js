@@ -22,9 +22,13 @@ import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
+import { onFetchUpdateAsync } from "./utils/checkUpdates";
 
 const windowDimensions = Dimensions.get("window");
 const Browser = () => {
+  useEffect(() => {
+    !__DEV__ && onFetchUpdateAsync();
+  }, []);
   const insets = useSafeAreaInsets();
   const [address, setAddress] = useState(
     // 'https://prom.ua/'
@@ -174,6 +178,7 @@ const Browser = () => {
             value={address}
             onChangeText={handleAddress}
             placeholder={"Enter web-address"}
+            placeholderTextColor="#e8e8e8"
             style={[styles.input]}
             multiline={multiline}
             onBlur={handleBlur}
