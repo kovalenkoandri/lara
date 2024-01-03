@@ -6,15 +6,13 @@
     "slug": "lara",
     "privacy": "public",
     "platforms": ["android"],
-    "orientation": "portrait",
+    "orientation": "default",
+    "githubUrl": "https://github.com/kovalenkoandri/lara",
     "icon": "./src/assets/icon1.png",
     "splash": {
       "image": "./src/assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#353542"
-    },
-    "updates": {
-      "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": ["**/*"],
     "android": {
@@ -33,6 +31,12 @@
     },
     "description": "Simple browser based on react-native-webview",
     "owner": "kovalenkoandrii",
+    "updates": {
+      "url": "https://u.expo.dev/9b09ed7a-525a-4896-81f2-7004336a3638"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "plugins": [
       [
         "expo-updates",
