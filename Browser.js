@@ -2,17 +2,16 @@ import React from "react";
 import {
   useSafeAreaInsets,
   SafeAreaView,
+  useSafeAreaFrame,
 } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 import {
   TextInput,
   StyleSheet,
   View,
-  Button,
   Keyboard,
   Text,
   TouchableOpacity,
-  Dimensions,
   ScrollView,
 } from "react-native";
 import { useState, useEffect, useRef } from "react";
@@ -24,12 +23,12 @@ import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
 import { onFetchUpdateAsync } from "./utils/checkUpdates";
 
-const windowDimensions = Dimensions.get("window");
 const Browser = () => {
   useEffect(() => {
     !__DEV__ && onFetchUpdateAsync();
   }, []);
   const insets = useSafeAreaInsets();
+  const frame = useSafeAreaFrame();
   const [address, setAddress] = useState(
     // 'https://prom.ua/'
     // 'https://olx.ua'
@@ -44,9 +43,7 @@ const Browser = () => {
   const [navStateUrlCutted, setNavStateUrlCutted] = useState("");
   const [copyBtnPressed, setCopyBtnPressed] = useState(false);
   const [pasteBtnPressed, setPasteBtnPressed] = useState(false);
-  const [dimensions, setDimensions] = useState({
-    window: windowDimensions,
-  });
+ 
   const [userAgent, setUserAgent] = useState("");
   const userAgentGet = async () => {
     try {
@@ -67,12 +64,6 @@ const Browser = () => {
   const handleAddress = (inputAddress) => {
     setAddress(inputAddress);
   };
-  useEffect(() => {
-    const subscription = Dimensions.addEventListener("change", ({ window }) => {
-      setDimensions({ window });
-    });
-    return () => subscription?.remove();
-  });
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -216,7 +207,7 @@ const Browser = () => {
       <TouchableOpacity
         disabled={copyBtnPressed}
         onPress={handleCopy}
-        style={[{ width: dimensions.window.width - 30 }, styles.copyBtn]}
+        style={[{ width: frame.width - 30 }, styles.copyBtn]}
       >
         {copyBtnPressed ? (
           <Ionicons
@@ -235,7 +226,7 @@ const Browser = () => {
         )}
         <Text
           selectable={true}
-          style={[{ width: dimensions.window.width - 80 }, styles.output]}
+          style={[{ width: frame.width - 80 }, styles.output]}
         >
           {navStateUrlCutted}
         </Text>
