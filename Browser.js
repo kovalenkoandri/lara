@@ -40,8 +40,6 @@ const Browser = () => {
   const [isLoaded, setIsLoaded] = useState(true);
   const [focused, setFocused] = useState(false);
   const [valid, setValid] = useState(true);
-  const [multiline, setMultiline] = useState(false);
-  const [topEl, setTopEl] = useState(true);
   const [navStateUrl, setNavStateUrl] = useState("");
   const [navStateUrlCutted, setNavStateUrlCutted] = useState("");
   const [copyBtnPressed, setCopyBtnPressed] = useState(false);
@@ -61,13 +59,9 @@ const Browser = () => {
   };
   userAgentGet();
   const handleBlur = () => {
-    setMultiline(false);
-    setTopEl(true);
     setFocused(false);
   };
   const handleFocus = () => {
-    setMultiline(true);
-    setTopEl(false);
     setFocused(true);
   };
   const handleAddress = (inputAddress) => {
@@ -180,14 +174,14 @@ const Browser = () => {
             placeholder={"Enter web-address"}
             placeholderTextColor="#e8e8e8"
             style={[styles.input]}
-            multiline={multiline}
+            multiline={focused}
             onBlur={handleBlur}
             onFocus={handleFocus}
-            selection={!focused && { start: 0, end: 8 }}
+            selection={!focused ? { start: 0, end: 3 } : undefined}
           />
         </ScrollView>
       </View>
-      {topEl && (
+      {!focused && (
         <View style={styles.btnContainer}>
           <TouchableOpacity
             onPress={() => {
@@ -217,59 +211,35 @@ const Browser = () => {
           >
             <AntDesign name="reload1" size={24} color="white" />
           </TouchableOpacity>
-          {/* <Button
-          title="clearCache"
-          onPress={() => {
-            ref.current?.clearCache();
-          }}
-        ></Button> */}
-          {/* <Button
-          title="requestFocus"
-          onPress={() => {
-            ref.current?.requestFocus();
-          }}
-        ></Button> */}
-          {/* <Button
-          title="clearHistory"
-          onPress={() => {
-            ref.current?.clearHistory();
-          }}
-        ></Button> */}
-          {/* <Button
-          title="clearFormData"
-          onPress={() => {
-            ref.current?.clearFormData();
-          }}
-        ></Button> */}
-          <TouchableOpacity
-            disabled={copyBtnPressed}
-            onPress={handleCopy}
-            style={[{ width: dimensions.window.width - 30 }, styles.copyBtn]}
-          >
-            {copyBtnPressed ? (
-              <Ionicons
-                name="checkmark-done"
-                size={24}
-                color="white"
-                style={styles.iconCopy}
-              />
-            ) : (
-              <FontAwesome
-                name="copy"
-                size={24}
-                color="white"
-                style={styles.iconCopy}
-              />
-            )}
-            <Text
-              selectable={true}
-              style={[{ width: dimensions.window.width - 80 }, styles.output]}
-            >
-              {navStateUrlCutted}
-            </Text>
-          </TouchableOpacity>
         </View>
       )}
+      <TouchableOpacity
+        disabled={copyBtnPressed}
+        onPress={handleCopy}
+        style={[{ width: dimensions.window.width - 30 }, styles.copyBtn]}
+      >
+        {copyBtnPressed ? (
+          <Ionicons
+            name="checkmark-done"
+            size={24}
+            color="white"
+            style={styles.iconCopy}
+          />
+        ) : (
+          <FontAwesome
+            name="copy"
+            size={24}
+            color="white"
+            style={styles.iconCopy}
+          />
+        )}
+        <Text
+          selectable={true}
+          style={[{ width: dimensions.window.width - 80 }, styles.output]}
+        >
+          {navStateUrlCutted}
+        </Text>
+      </TouchableOpacity>
       {valid ? (
         <WebView
           ref={ref}
