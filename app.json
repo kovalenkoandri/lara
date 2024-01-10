@@ -43,6 +43,12 @@
         {
           "username": "kovalenkoandrii"
         }
+      ],
+      [
+        "expo-screen-orientation",
+        {
+          "initialOrientation": "default"
+        }
       ]
     ]
   }

@@ -321,6 +321,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderColor: "#767577",
     borderWidth: 1,
+    marginLeft: "auto",
+    marginRight: "auto",
   },
   iconCopy: {
     marginRight: 20,
