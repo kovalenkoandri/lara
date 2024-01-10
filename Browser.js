@@ -22,6 +22,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
 import { onFetchUpdateAsync } from "./utils/checkUpdates";
+import * as ScreenOrientation from "expo-screen-orientation";
 
 const Browser = () => {
   useEffect(() => {
@@ -73,7 +74,7 @@ const Browser = () => {
         if (response) {
           setValid(true);
           // Keyboard.dismiss();
-          // console.log(ref.current);
+          // console.log(webviewRef.current);
         }
       } catch (error) {
         console.error("Error fetching website:", error);
@@ -83,20 +84,22 @@ const Browser = () => {
     fetchData();
   }, [address]);
 
-  const ref = useRef(null);
+  const webviewRef = useRef(null);
   const handleNavigationStateChange = (navState) => {
     // console.log("navState.url ", navState.url);
     // one way to handle errors is via query string
     if (navState.url.includes("?errors=true")) {
-      ref.current?.stopLoading();
+      webviewRef.current?.stopLoading();
     }
     setNavStateUrl((oldUrl) => {
+      // Calculate the desired number of characters based on a percentage of frame width
       let startValue = oldUrl;
-      const trimmedValue = startValue.slice(0, 24);
+      const desiredCharacters = Math.floor(frame.width * 0.06);
+      const trimmedValue = startValue.slice(0, desiredCharacters);
       setNavStateUrlCutted(trimmedValue + "...");
       if (navState.url !== oldUrl) {
         startValue = navState.url;
-        const trimmedValue = startValue.slice(0, 24);
+        const trimmedValue = startValue.slice(0, desiredCharacters);
         setNavStateUrlCutted(trimmedValue + "...");
         return navState.url;
       }
@@ -124,6 +127,20 @@ const Browser = () => {
       setPasteBtnPressed(false);
     }, 2000);
   };
+   useEffect(() => {
+     // Add orientation change listener
+     const subscription =
+       ScreenOrientation.addOrientationChangeListener(onOrientationChange);
+
+     // Clean up the listener when the component unmounts
+     return () => {
+       // Remove the orientation change listener
+       ScreenOrientation.removeOrientationChangeListener(subscription);
+     };
+   }, []);
+   const onOrientationChange = (event) => {
+     webviewRef.current?.reload();
+   };
   // window.ReactNativeWebView.postMessage(JSON.stringify(window.getComputedStyle(document.body).backgroundColor));
   // window.ReactNativeWebView.postMessage(JSON.stringify(document.body.style.backgroundColor
   // window.ReactNativeWebView.postMessage(JSON.stringify(document.body.style.backgroundColor = "rgba(52, 53, 65, 1.0)"));
@@ -176,28 +193,28 @@ const Browser = () => {
         <View style={styles.btnContainer}>
           <TouchableOpacity
             onPress={() => {
-              ref.current?.goBack();
+              webviewRef.current?.goBack();
             }}
           >
             <FontAwesome name="backward" size={24} color="white" />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              ref.current?.goForward();
+              webviewRef.current?.goForward();
             }}
           >
             <AntDesign name="forward" size={24} color="white" />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              ref.current?.stopLoading();
+              webviewRef.current?.stopLoading();
             }}
           >
             <FontAwesome name="stop" size={24} color="white" />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              ref.current?.reload();
+              webviewRef.current?.reload();
             }}
           >
             <AntDesign name="reload1" size={24} color="white" />
@@ -233,7 +250,7 @@ const Browser = () => {
       </TouchableOpacity>
       {valid ? (
         <WebView
-          ref={ref}
+          ref={webviewRef}
           userAgent={userAgent || ""}
           originWhitelist={["*"]}
           source={{
