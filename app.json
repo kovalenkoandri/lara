@@ -5,7 +5,9 @@
     "name": "lara",
     "slug": "lara",
     "privacy": "public",
-    "platforms": ["android"],
+    "platforms": [
+      "android"
+    ],
     "orientation": "default",
     "githubUrl": "https://github.com/kovalenkoandri/lara",
     "icon": "./src/assets/icon1.png",
@@ -14,10 +16,12 @@
       "resizeMode": "contain",
       "backgroundColor": "#353542"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "android": {
       "package": "com.kovalenkoandrii.lara",
-      "versionCode": 2,
+      "versionCode": 3,
       "permissions": [
         "CAMERA",
         "WRITE_EXTERNAL_STORAGE",
