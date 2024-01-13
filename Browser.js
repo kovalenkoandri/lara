@@ -86,11 +86,10 @@ const Browser = () => {
 
   const webviewRef = useRef(null);
   const handleNavigationStateChange = (navState) => {
-    // console.log("navState.url ", navState.url);
     // one way to handle errors is via query string
-    if (navState.url.includes("?errors=true")) {
-      webviewRef.current?.stopLoading();
-    }
+    // if (navState.url.includes("?errors=true")) {
+    //   webviewRef.current?.stopLoading();
+    // }
     setNavStateUrl((oldUrl) => {
       // Calculate the desired number of characters based on a percentage of frame width
       let startValue = oldUrl;
