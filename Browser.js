@@ -48,6 +48,7 @@ const Browser = () => {
 
   const [copyBtnPressed, setCopyBtnPressed] = useState(false);
   const [pasteBtnPressed, setPasteBtnPressed] = useState(false);
+  const [clearInputBtnPressed, setClearInputBtnPressed] = useState(false);
 
   const [showNavBar, setShowNavBar] = useState(true);
 
@@ -196,7 +197,18 @@ const Browser = () => {
         window.ReactNativeWebView.postMessage(JSON.stringify(window.location.href));
 })();
     `;
+  const handleClearInput = () => {
+    setAddress("https://");
+    setNavStateUrlCutted("https://");
+    setNavStateUrl("https://");
 
+    if (!clearInputBtnPressed) {
+      setClearInputBtnPressed(true);
+    }
+    setTimeout(() => {
+      setClearInputBtnPressed(false);
+    }, 2000);
+  };
   return (
     <SafeAreaView style={[{ marginTop: insets.top }, styles.safeAreaView]}>
       {isLoaded && (
@@ -273,6 +285,16 @@ const Browser = () => {
                 {navStateUrlCutted}
               </Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              disabled={clearInputBtnPressed}
+              onPress={handleClearInput}
+            >
+              {clearInputBtnPressed ? (
+                <Ionicons name="checkmark-done" size={24} color="white" />
+              ) : (
+                <AntDesign name="delete" size={24} color="white" />
+              )}
+            </TouchableOpacity>
           </View>
           {!focused && (
             <View style={styles.btnContainer}>
@@ -283,7 +305,7 @@ const Browser = () => {
                   <FontAwesome name="copy" size={24} color="white" />
                 )}
               </TouchableOpacity>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 disabled={pasteBtnPressed}
                 onPress={handlePaste}
               >
@@ -292,7 +314,7 @@ const Browser = () => {
                 ) : (
                   <FontAwesome name="paste" size={24} color="white" />
                 )}
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <TouchableOpacity
                 onPress={() => {
                   webviewRef.current?.goBack();
@@ -323,7 +345,7 @@ const Browser = () => {
               </TouchableOpacity>
             </View>
           )}
-          <TouchableOpacity
+          {/* <TouchableOpacity
             disabled={copyBtnPressed}
             onPress={handleCopy}
             style={[{ width: frame.width - 30 }, styles.copyBtn]}
@@ -349,12 +371,14 @@ const Browser = () => {
             >
               {navStateUrlCutted}
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </Animated.View>
       )}
       {valid ? (
         <TouchableOpacity onPress={handlePressNavBar} style={{ flex: 1 }}>
           <WebView
+            // onTouchStart={(e) => console.log("Touch Start:", e.nativeEvent)}
+            // onTouchMove={(e) => console.log("Touch Move:", e.nativeEvent)}
             ref={webviewRef}
             userAgent={userAgent || ""}
             originWhitelist={["*"]}
@@ -380,11 +404,13 @@ const Browser = () => {
           />
         </TouchableOpacity>
       ) : (
-        <Text selectable={true} style={styles.ensureText}>
-          Please, ensure{"\n"}
-          <Text style={styles.ensureTextHighlighted}>{"https://\n"}</Text>
-          is passed before the address
-        </Text>
+        <TouchableOpacity onPress={handlePressNavBar} style={{ flex: 1 }}>
+          <Text selectable={true} style={styles.ensureText}>
+            Please, ensure{"\n"}
+            <Text style={styles.ensureTextHighlighted}>{"https://\n"}</Text>
+            is passed before the address
+          </Text>
+        </TouchableOpacity>
       )}
     </SafeAreaView>
   );
@@ -408,6 +434,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginLeft: "auto",
     marginRight: "auto",
+    marginBottom: 20
   },
   pasteBtn: {
     marginRight: 20,
@@ -427,7 +454,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-evenly",
     alignItems: "center",
-    marginTop: 20,
+    marginBottom: 20,
   },
   copyBtn: {
     height: 40,
@@ -449,6 +476,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
     fontSize: 24,
+    marginRight: -20,
     overflow: "hidden",
   },
   webView: {
