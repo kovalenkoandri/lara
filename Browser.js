@@ -82,10 +82,10 @@ const Browser = () => {
   useEffect(() => {
     const timeoutslideOutId = setTimeout(() => {
       slideOut(); // why it runs twice
-    }, 500000);
+    }, 15000);
     const timeoutNavBarId = setTimeout(() => {
       setShowNavBar(false);
-    }, 500700);
+    }, 15700);
 
     return () => {
       clearTimeout(timeoutslideOutId);
@@ -296,82 +296,43 @@ const Browser = () => {
               )}
             </TouchableOpacity>
           </View>
-          {!focused && (
-            <View style={styles.btnContainer}>
-              <TouchableOpacity disabled={copyBtnPressed} onPress={handleCopy}>
-                {copyBtnPressed ? (
-                  <Ionicons name="checkmark-done" size={24} color="white" />
-                ) : (
-                  <FontAwesome name="copy" size={24} color="white" />
-                )}
-              </TouchableOpacity>
-              {/* <TouchableOpacity
-                disabled={pasteBtnPressed}
-                onPress={handlePaste}
-              >
-                {pasteBtnPressed ? (
-                  <Ionicons name="checkmark-done" size={24} color="white" />
-                ) : (
-                  <FontAwesome name="paste" size={24} color="white" />
-                )}
-              </TouchableOpacity> */}
-              <TouchableOpacity
-                onPress={() => {
-                  webviewRef.current?.goBack();
-                }}
-              >
-                <FontAwesome name="backward" size={24} color="white" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  webviewRef.current?.goForward();
-                }}
-              >
-                <AntDesign name="forward" size={24} color="white" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  webviewRef.current?.stopLoading();
-                }}
-              >
-                <FontAwesome name="stop" size={24} color="white" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  webviewRef.current?.reload();
-                }}
-              >
-                <AntDesign name="reload1" size={24} color="white" />
-              </TouchableOpacity>
-            </View>
-          )}
-          {/* <TouchableOpacity
-            disabled={copyBtnPressed}
-            onPress={handleCopy}
-            style={[{ width: frame.width - 30 }, styles.copyBtn]}
-          >
-            {copyBtnPressed ? (
-              <Ionicons
-                name="checkmark-done"
-                size={24}
-                color="white"
-                style={styles.iconCopy}
-              />
-            ) : (
-              <FontAwesome
-                name="copy"
-                size={24}
-                color="white"
-                style={styles.iconCopy}
-              />
-            )}
-            <Text
-              selectable={true}
-              style={[{ width: frame.width - 80 }, styles.output]}
+          <View style={styles.btnContainer}>
+            <TouchableOpacity disabled={copyBtnPressed} onPress={handleCopy}>
+              {copyBtnPressed ? (
+                <Ionicons name="checkmark-done" size={24} color="white" />
+              ) : (
+                <FontAwesome name="copy" size={24} color="white" />
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                webviewRef.current?.goBack();
+              }}
             >
-              {navStateUrlCutted}
-            </Text>
-          </TouchableOpacity> */}
+              <FontAwesome name="backward" size={24} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                webviewRef.current?.goForward();
+              }}
+            >
+              <AntDesign name="forward" size={24} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                webviewRef.current?.stopLoading();
+              }}
+            >
+              <FontAwesome name="stop" size={24} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                webviewRef.current?.reload();
+              }}
+            >
+              <AntDesign name="reload1" size={24} color="white" />
+            </TouchableOpacity>
+          </View>
         </Animated.View>
       )}
       {valid ? (
@@ -381,7 +342,7 @@ const Browser = () => {
             // onTouchMove={(e) => console.log("Touch Move:", e.nativeEvent)}
             ref={webviewRef}
             userAgent={userAgent || ""}
-            originWhitelist={["*"]}
+            originWhitelist={["http://*", "https://*", "intent://*"]}
             source={{
               uri: address,
             }}
@@ -434,7 +395,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginLeft: "auto",
     marginRight: "auto",
-    marginBottom: 20
+    marginBottom: 20,
   },
   pasteBtn: {
     marginRight: 20,
