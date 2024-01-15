@@ -13,6 +13,7 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
+  Animated,
 } from "react-native";
 import { useState, useEffect, useRef } from "react";
 import * as Clipboard from "expo-clipboard";
@@ -38,14 +39,59 @@ const Browser = () => {
   );
   const [progress, setProgress] = useState(0);
   const [isLoaded, setIsLoaded] = useState(true);
+
   const [focused, setFocused] = useState(false);
   const [valid, setValid] = useState(true);
+
   const [navStateUrl, setNavStateUrl] = useState("");
   const [navStateUrlCutted, setNavStateUrlCutted] = useState("");
+
   const [copyBtnPressed, setCopyBtnPressed] = useState(false);
   const [pasteBtnPressed, setPasteBtnPressed] = useState(false);
+
   const [showNavBar, setShowNavBar] = useState(true);
+
   const [userAgent, setUserAgent] = useState("");
+
+  const slideAnim = useRef(new Animated.Value(0)).current;
+
+  const slideIn = () => {
+    // Will change slideAnim value to 1 in 500 ms
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const slideOut = () => {
+    // Will change slideAnim value to 0 in 500 ms
+    Animated.timing(slideAnim, {
+      toValue: 25,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressNavBar = () => {
+    slideIn();
+    setShowNavBar(true);
+  };
+
+  useEffect(() => {
+    const timeoutslideOutId = setTimeout(() => {
+      slideOut(); // why it runs twice
+    }, 5000);
+    const timeoutNavBarId = setTimeout(() => {
+      setShowNavBar(false);
+    }, 5700);
+
+    return () => {
+      clearTimeout(timeoutslideOutId);
+      clearTimeout(timeoutNavBarId);
+    };
+  }, [showNavBar]);
+
   const userAgentGet = async () => {
     try {
       const userAgentRef = await Constants.getWebViewUserAgentAsync();
@@ -150,19 +196,7 @@ const Browser = () => {
         window.ReactNativeWebView.postMessage(JSON.stringify(window.location.href));
 })();
     `;
-  const handlePressNavBar = () => {
-    setShowNavBar(true);
-  };
-  useEffect(() => {
-  
-    const timeoutNavBarId = setTimeout(() => {
-      setShowNavBar(false);
-    }, 5700);
 
-    return () => {
-      clearTimeout(timeoutNavBarId);
-    };
-  }, [showNavBar]);
   return (
     <SafeAreaView style={[{ marginTop: insets.top }, styles.safeAreaView]}>
       {isLoaded && (
@@ -175,8 +209,19 @@ const Browser = () => {
         />
       )}
       {showNavBar && (
-        <>
-          <View style={styles.inputContainer}>
+        <Animated.View
+          style={{
+            transform: [
+              {
+                translateY: slideAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 25], // The outputRange for slideAnim.interpolate should match the toValue of the Animated.timing function
+                }),
+              },
+            ],
+          }}
+        >
+          <View style={[{ width: frame.width - 30 }, styles.inputContainer]}>
             <TouchableOpacity
               style={styles.pasteBtn}
               disabled={pasteBtnPressed}
@@ -261,10 +306,10 @@ const Browser = () => {
               {navStateUrlCutted}
             </Text>
           </TouchableOpacity>
-        </>
+        </Animated.View>
       )}
       {valid ? (
-        <TouchableOpacity onPress={handlePressNavBar} style={{flex: 1}}>
+        <TouchableOpacity onPress={handlePressNavBar} style={{ flex: 1 }}>
           <WebView
             ref={webviewRef}
             userAgent={userAgent || ""}
@@ -317,7 +362,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderColor: "#767577",
     borderWidth: 1,
-    marginLeft: 20,
+    marginLeft: "auto",
+    marginRight: "auto",
   },
   pasteBtn: {
     marginRight: 20,
@@ -329,7 +375,7 @@ const styles = StyleSheet.create({
     borderColor: "#767577",
     borderWidth: 1,
     borderRadius: 10,
-    width: "90%",
+    width: "99%",
     fontSize: 24,
   },
   btnContainer: {
