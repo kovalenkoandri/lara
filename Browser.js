@@ -26,9 +26,9 @@ import { onFetchUpdateAsync } from "./utils/checkUpdates";
 import * as ScreenOrientation from "expo-screen-orientation";
 
 const Browser = () => {
-  useEffect(() => {
-    !__DEV__ && onFetchUpdateAsync();
-  }, []);
+  // useEffect(() => {
+  //   !__DEV__ && onFetchUpdateAsync();
+  // }, []);
   const insets = useSafeAreaInsets();
   const frame = useSafeAreaFrame();
   const [address, setAddress] = useState(
@@ -81,10 +81,10 @@ const Browser = () => {
   useEffect(() => {
     const timeoutslideOutId = setTimeout(() => {
       slideOut(); // why it runs twice
-    }, 5000);
+    }, 500000);
     const timeoutNavBarId = setTimeout(() => {
       setShowNavBar(false);
-    }, 5700);
+    }, 500700);
 
     return () => {
       clearTimeout(timeoutslideOutId);
@@ -239,16 +239,60 @@ const Browser = () => {
                 onChangeText={handleAddress}
                 placeholder={"Enter web-address"}
                 placeholderTextColor="#e8e8e8"
-                style={[styles.input]}
+                style={[
+                  {
+                    // width: focused ? frame.width - 80 : 1,
+                    // height: focused ? "auto" : 1,
+                    // opacity: focused ? 1 : 0
+                  },
+                  styles.input,
+                ]}
                 multiline={focused}
                 onBlur={handleBlur}
                 onFocus={handleFocus}
                 selection={!focused ? { start: 0, end: 3 } : undefined}
               />
             </ScrollView>
+            <TouchableOpacity
+              onPress={() => {
+                setFocused(true);
+                handleCopy();
+                handlePaste();
+              }}
+            >
+              <Text
+                selectable={true}
+                style={[
+                  {
+                    width: !focused ? frame.width - 80 : 1,
+                    height: !focused ? "auto" : 1,
+                  },
+                  styles.output,
+                ]}
+              >
+                {navStateUrlCutted}
+              </Text>
+            </TouchableOpacity>
           </View>
           {!focused && (
             <View style={styles.btnContainer}>
+              <TouchableOpacity disabled={copyBtnPressed} onPress={handleCopy}>
+                {copyBtnPressed ? (
+                  <Ionicons name="checkmark-done" size={24} color="white" />
+                ) : (
+                  <FontAwesome name="copy" size={24} color="white" />
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity
+                disabled={pasteBtnPressed}
+                onPress={handlePaste}
+              >
+                {pasteBtnPressed ? (
+                  <Ionicons name="checkmark-done" size={24} color="white" />
+                ) : (
+                  <FontAwesome name="paste" size={24} color="white" />
+                )}
+              </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
                   webviewRef.current?.goBack();
