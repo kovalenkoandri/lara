@@ -44,7 +44,7 @@ const Browser = () => {
   const [navStateUrlCutted, setNavStateUrlCutted] = useState("");
   const [copyBtnPressed, setCopyBtnPressed] = useState(false);
   const [pasteBtnPressed, setPasteBtnPressed] = useState(false);
- 
+  const [showNavBar, setShowNavBar] = useState(true);
   const [userAgent, setUserAgent] = useState("");
   const userAgentGet = async () => {
     try {
@@ -126,20 +126,20 @@ const Browser = () => {
       setPasteBtnPressed(false);
     }, 2000);
   };
-   useEffect(() => {
-     // Add orientation change listener
-     const subscription =
-       ScreenOrientation.addOrientationChangeListener(onOrientationChange);
+  useEffect(() => {
+    // Add orientation change listener
+    const subscription =
+      ScreenOrientation.addOrientationChangeListener(onOrientationChange);
 
-     // Clean up the listener when the component unmounts
-     return () => {
-       // Remove the orientation change listener
-       ScreenOrientation.removeOrientationChangeListener(subscription);
-     };
-   }, []);
-   const onOrientationChange = (event) => {
-     webviewRef.current?.reload();
-   };
+    // Clean up the listener when the component unmounts
+    return () => {
+      // Remove the orientation change listener
+      ScreenOrientation.removeOrientationChangeListener(subscription);
+    };
+  }, []);
+  const onOrientationChange = (event) => {
+    webviewRef.current?.reload();
+  };
   // window.ReactNativeWebView.postMessage(JSON.stringify(window.getComputedStyle(document.body).backgroundColor));
   // window.ReactNativeWebView.postMessage(JSON.stringify(document.body.style.backgroundColor
   // window.ReactNativeWebView.postMessage(JSON.stringify(document.body.style.backgroundColor = "rgba(52, 53, 65, 1.0)"));
@@ -150,7 +150,19 @@ const Browser = () => {
         window.ReactNativeWebView.postMessage(JSON.stringify(window.location.href));
 })();
     `;
+  const handlePressNavBar = () => {
+    setShowNavBar(true);
+  };
+  useEffect(() => {
+  
+    const timeoutNavBarId = setTimeout(() => {
+      setShowNavBar(false);
+    }, 5700);
 
+    return () => {
+      clearTimeout(timeoutNavBarId);
+    };
+  }, [showNavBar]);
   return (
     <SafeAreaView style={[{ marginTop: insets.top }, styles.safeAreaView]}>
       {isLoaded && (
@@ -162,116 +174,122 @@ const Browser = () => {
           width={null}
         />
       )}
-      <View style={styles.inputContainer}>
-        <TouchableOpacity
-          style={styles.pasteBtn}
-          disabled={pasteBtnPressed}
-          onPress={handlePaste}
-        >
-          {pasteBtnPressed ? (
-            <Ionicons name="checkmark-done" size={24} color="white" />
-          ) : (
-            <FontAwesome name="paste" size={24} color="white" />
+      {showNavBar && (
+        <>
+          <View style={styles.inputContainer}>
+            <TouchableOpacity
+              style={styles.pasteBtn}
+              disabled={pasteBtnPressed}
+              onPress={handlePaste}
+            >
+              {pasteBtnPressed ? (
+                <Ionicons name="checkmark-done" size={24} color="white" />
+              ) : (
+                <FontAwesome name="paste" size={24} color="white" />
+              )}
+            </TouchableOpacity>
+            <ScrollView>
+              <TextInput
+                value={address}
+                onChangeText={handleAddress}
+                placeholder={"Enter web-address"}
+                placeholderTextColor="#e8e8e8"
+                style={[styles.input]}
+                multiline={focused}
+                onBlur={handleBlur}
+                onFocus={handleFocus}
+                selection={!focused ? { start: 0, end: 3 } : undefined}
+              />
+            </ScrollView>
+          </View>
+          {!focused && (
+            <View style={styles.btnContainer}>
+              <TouchableOpacity
+                onPress={() => {
+                  webviewRef.current?.goBack();
+                }}
+              >
+                <FontAwesome name="backward" size={24} color="white" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  webviewRef.current?.goForward();
+                }}
+              >
+                <AntDesign name="forward" size={24} color="white" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  webviewRef.current?.stopLoading();
+                }}
+              >
+                <FontAwesome name="stop" size={24} color="white" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  webviewRef.current?.reload();
+                }}
+              >
+                <AntDesign name="reload1" size={24} color="white" />
+              </TouchableOpacity>
+            </View>
           )}
-        </TouchableOpacity>
-        <ScrollView>
-          <TextInput
-            value={address}
-            onChangeText={handleAddress}
-            placeholder={"Enter web-address"}
-            placeholderTextColor="#e8e8e8"
-            style={[styles.input]}
-            multiline={focused}
-            onBlur={handleBlur}
-            onFocus={handleFocus}
-            selection={!focused ? { start: 0, end: 3 } : undefined}
-          />
-        </ScrollView>
-      </View>
-      {!focused && (
-        <View style={styles.btnContainer}>
           <TouchableOpacity
-            onPress={() => {
-              webviewRef.current?.goBack();
-            }}
+            disabled={copyBtnPressed}
+            onPress={handleCopy}
+            style={[{ width: frame.width - 30 }, styles.copyBtn]}
           >
-            <FontAwesome name="backward" size={24} color="white" />
+            {copyBtnPressed ? (
+              <Ionicons
+                name="checkmark-done"
+                size={24}
+                color="white"
+                style={styles.iconCopy}
+              />
+            ) : (
+              <FontAwesome
+                name="copy"
+                size={24}
+                color="white"
+                style={styles.iconCopy}
+              />
+            )}
+            <Text
+              selectable={true}
+              style={[{ width: frame.width - 80 }, styles.output]}
+            >
+              {navStateUrlCutted}
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              webviewRef.current?.goForward();
-            }}
-          >
-            <AntDesign name="forward" size={24} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              webviewRef.current?.stopLoading();
-            }}
-          >
-            <FontAwesome name="stop" size={24} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              webviewRef.current?.reload();
-            }}
-          >
-            <AntDesign name="reload1" size={24} color="white" />
-          </TouchableOpacity>
-        </View>
+        </>
       )}
-      <TouchableOpacity
-        disabled={copyBtnPressed}
-        onPress={handleCopy}
-        style={[{ width: frame.width - 30 }, styles.copyBtn]}
-      >
-        {copyBtnPressed ? (
-          <Ionicons
-            name="checkmark-done"
-            size={24}
-            color="white"
-            style={styles.iconCopy}
-          />
-        ) : (
-          <FontAwesome
-            name="copy"
-            size={24}
-            color="white"
-            style={styles.iconCopy}
-          />
-        )}
-        <Text
-          selectable={true}
-          style={[{ width: frame.width - 80 }, styles.output]}
-        >
-          {navStateUrlCutted}
-        </Text>
-      </TouchableOpacity>
       {valid ? (
-        <WebView
-          ref={webviewRef}
-          userAgent={userAgent || ""}
-          originWhitelist={["*"]}
-          source={{
-            uri: address,
-          }}
-          style={styles.webView}
-          onNavigationStateChange={handleNavigationStateChange}
-          onError={({ nativeEvent }) =>
-            console.log("WebView error:", nativeEvent.description)
-          }
-          // forceDarkOn={true}
-          injectedJavaScript={INJECTED_JAVASCRIPT}
-          onMessage={(event) => {
-            // console.log("event.nativeEvent.data >>>>" + event.nativeEvent.data);
-          }}
-          startInLoadingState={true}
-          onLoadStart={() => setIsLoaded(true)}
-          onLoadEnd={() => setIsLoaded(false)}
-          onLoadProgress={({ nativeEvent }) =>
-            setProgress(nativeEvent.progress)
-          }
-        />
+        <TouchableOpacity onPress={handlePressNavBar} style={{flex: 1}}>
+          <WebView
+            ref={webviewRef}
+            userAgent={userAgent || ""}
+            originWhitelist={["*"]}
+            source={{
+              uri: address,
+            }}
+            style={styles.webView}
+            onNavigationStateChange={handleNavigationStateChange}
+            onError={({ nativeEvent }) =>
+              console.log("WebView error:", nativeEvent.description)
+            }
+            // forceDarkOn={true}
+            injectedJavaScript={INJECTED_JAVASCRIPT}
+            onMessage={(event) => {
+              // console.log("event.nativeEvent.data >>>>" + event.nativeEvent.data);
+            }}
+            startInLoadingState={true}
+            onLoadStart={() => setIsLoaded(true)}
+            onLoadEnd={() => setIsLoaded(false)}
+            onLoadProgress={({ nativeEvent }) =>
+              setProgress(nativeEvent.progress)
+            }
+          />
+        </TouchableOpacity>
       ) : (
         <Text selectable={true} style={styles.ensureText}>
           Please, ensure{"\n"}
