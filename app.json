@@ -21,7 +21,7 @@
     ],
     "android": {
       "package": "com.kovalenkoandrii.lara",
-      "versionCode": 3,
+      "versionCode": 4,
       "permissions": [
         "CAMERA",
         "WRITE_EXTERNAL_STORAGE",

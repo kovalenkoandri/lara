@@ -75,6 +75,7 @@ const Browser = () => {
   };
 
   const handlePressNavBar = () => {
+    setFocused(false);
     slideIn();
     setShowNavBar(true);
   };
@@ -82,10 +83,10 @@ const Browser = () => {
   useEffect(() => {
     const timeoutslideOutId = setTimeout(() => {
       slideOut(); // why it runs twice
-    }, 15000);
+    }, 150000);
     const timeoutNavBarId = setTimeout(() => {
       setShowNavBar(false);
-    }, 15700);
+    }, 150700);
 
     return () => {
       clearTimeout(timeoutslideOutId);
@@ -153,6 +154,7 @@ const Browser = () => {
     });
   };
   const handleCopy = async () => {
+    setFocused(false);
     Keyboard.dismiss();
     await Clipboard.setStringAsync(navStateUrl);
     if (!copyBtnPressed) {
@@ -163,6 +165,7 @@ const Browser = () => {
     }, 2000);
   };
   const handlePaste = async () => {
+    setFocused(false);
     Keyboard.dismiss();
     const text = await Clipboard.getStringAsync();
     setAddress(text);
@@ -189,12 +192,30 @@ const Browser = () => {
   };
   // window.ReactNativeWebView.postMessage(JSON.stringify(window.getComputedStyle(document.body).backgroundColor));
   // window.ReactNativeWebView.postMessage(JSON.stringify(document.body.style.backgroundColor
-  // window.ReactNativeWebView.postMessage(JSON.stringify(document.body.style.backgroundColor = "rgba(52, 53, 65, 1.0)"));
   // window.ReactNativeWebView.postMessage(JSON.stringify(document.body.style.color = "rgba(255, 255, 255, 1.0)"));
   // window.ReactNativeWebView.postMessage(JSON.stringify(document.body.style.fontSize = "2em")));
+  // window.ReactNativeWebView.postMessage(JSON.stringify(window.location.href));
+  // window.ReactNativeWebView.postMessage(JSON.stringify(document.body.style.backgroundColor = "rgba(52, 53, 65, 1.0)"));
   const INJECTED_JAVASCRIPT = `
+ 
+// function applyBackgroundColorToDescendants(element, color) {
+//   element.style.backgroundColor = color;
+
+//   for (let i = 0; i < element.children.length; i++) {
+//     const child = element.children[i];
+//     applyBackgroundColorToDescendants(child, color);
+//   }
+// }
   (function() {
-        window.ReactNativeWebView.postMessage(JSON.stringify(window.location.href));
+// const currentBackgroundColor = window.getComputedStyle(document.body).backgroundColor;
+// const bodyElement = document.body;
+// applyBackgroundColorToDescendants(bodyElement, 'pink');
+document.querySelector('html').style.filter = 'invert(100%)';
+document.querySelectorAll('img, picture, svg, [style*="background-image"]').forEach(element => {
+  element.style.filter = 'invert(100%)';
+});
+// window.ReactNativeWebView.postMessage(JSON.stringify({ invertedBackgroundColor }));
+
 })();
     `;
   const handleClearInput = () => {
@@ -209,139 +230,167 @@ const Browser = () => {
       setClearInputBtnPressed(false);
     }, 2000);
   };
+  const handleTouchableOpacityPress = () => {
+    console.log(webviewRef);
+    // Execute the injected JavaScript code when TouchableOpacity is pressed
+    webviewRef.current?.injectJavaScript(INJECTED_JAVASCRIPT);
+  };
   return (
     <SafeAreaView style={[{ marginTop: insets.top }, styles.safeAreaView]}>
-      {isLoaded && (
-        <Progress.Bar
-          progress={progress}
-          borderWidth={0}
-          borderRadius={0}
-          color="blue"
-          width={null}
-        />
-      )}
-      {showNavBar && (
-        <Animated.View
-          style={{
-            transform: [
-              {
-                translateY: slideAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, 25], // The outputRange for slideAnim.interpolate should match the toValue of the Animated.timing function
-                }),
-              },
-            ],
-          }}
-        >
-          <View style={[{ width: frame.width - 30 }, styles.inputContainer]}>
-            <TouchableOpacity
-              style={styles.pasteBtn}
-              disabled={pasteBtnPressed}
-              onPress={handlePaste}
-            >
-              {pasteBtnPressed ? (
-                <Ionicons name="checkmark-done" size={24} color="white" />
-              ) : (
-                <FontAwesome name="paste" size={24} color="white" />
-              )}
-            </TouchableOpacity>
-            <ScrollView>
-              <TextInput
-                value={address}
-                onChangeText={handleAddress}
-                placeholder={"Enter web-address"}
-                placeholderTextColor="#e8e8e8"
-                style={[
-                  {
-                    // width: focused ? frame.width - 80 : 1,
-                    // height: focused ? "auto" : 1,
-                    // opacity: focused ? 1 : 0
-                  },
-                  styles.input,
-                ]}
-                multiline={focused}
-                onBlur={handleBlur}
-                onFocus={handleFocus}
-                selection={!focused ? { start: 0, end: 3 } : undefined}
-              />
-            </ScrollView>
-            <TouchableOpacity
-              onPress={() => {
-                setFocused(true);
-                handleCopy();
-                handlePaste();
-              }}
-            >
-              <Text
-                selectable={true}
-                style={[
-                  {
-                    width: !focused ? frame.width - 80 : 1,
-                    height: !focused ? "auto" : 1,
-                  },
-                  styles.output,
-                ]}
+      <TouchableOpacity onPress={() => setFocused(false)}>
+        {isLoaded && (
+          <Progress.Bar
+            progress={progress}
+            borderWidth={0}
+            borderRadius={0}
+            color="blue"
+            width={null}
+          />
+        )}
+        <TouchableOpacity onPress={handleTouchableOpacityPress}>
+          <Text>ttttt</Text>
+        </TouchableOpacity>
+        {showNavBar && (
+          <Animated.View
+            style={{
+              transform: [
+                {
+                  translateY: slideAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 25], // The outputRange for slideAnim.interpolate should match the toValue of the Animated.timing function
+                  }),
+                },
+              ],
+            }}
+          >
+            <View style={[{ width: frame.width - 30 }, styles.inputContainer]}>
+              <TouchableOpacity
+                style={styles.pasteBtn}
+                disabled={pasteBtnPressed}
+                onPress={handlePaste}
               >
-                {navStateUrlCutted}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              disabled={clearInputBtnPressed}
-              onPress={handleClearInput}
-            >
-              {clearInputBtnPressed ? (
-                <Ionicons name="checkmark-done" size={24} color="white" />
-              ) : (
-                <AntDesign name="delete" size={24} color="white" />
-              )}
-            </TouchableOpacity>
-          </View>
-          <View style={styles.btnContainer}>
-            <TouchableOpacity disabled={copyBtnPressed} onPress={handleCopy}>
-              {copyBtnPressed ? (
-                <Ionicons name="checkmark-done" size={24} color="white" />
-              ) : (
-                <FontAwesome name="copy" size={24} color="white" />
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                webviewRef.current?.goBack();
-              }}
-            >
-              <FontAwesome name="backward" size={24} color="white" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                webviewRef.current?.goForward();
-              }}
-            >
-              <AntDesign name="forward" size={24} color="white" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                webviewRef.current?.stopLoading();
-              }}
-            >
-              <FontAwesome name="stop" size={24} color="white" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                webviewRef.current?.reload();
-              }}
-            >
-              <AntDesign name="reload1" size={24} color="white" />
-            </TouchableOpacity>
-          </View>
-        </Animated.View>
-      )}
+                {pasteBtnPressed ? (
+                  <Ionicons name="checkmark-done" size={24} color="white" />
+                ) : (
+                  <FontAwesome name="paste" size={24} color="white" />
+                )}
+              </TouchableOpacity>
+              <ScrollView>
+                <TextInput
+                  value={address}
+                  onChangeText={handleAddress}
+                  placeholder={"Enter web-address"}
+                  placeholderTextColor="#e8e8e8"
+                  style={[
+                    {
+                      // width: focused ? frame.width - 80 : 1,
+                      // height: focused ? "auto" : 1,
+                      // opacity: focused ? 1 : 0
+                    },
+                    styles.input,
+                  ]}
+                  multiline={focused}
+                  onBlur={handleBlur}
+                  onFocus={handleFocus}
+                  selection={!focused ? { start: 0, end: 3 } : undefined}
+                />
+              </ScrollView>
+              <TouchableOpacity
+                onPress={async () => {
+                  try {
+                    setFocused(true);
+                    // await webviewRef.current?.reload();
+                    await handleCopy();
+                    await handlePaste();
+                    setFocused(true);
+                    // console.log(textInputRef.current.setSelection);
+                    // textInputRef.current?.focus();
+                    // textInputRef.current.setSelection({
+                    //   start: 0, // start index of the selection
+                    //   end: 1000 // end index of the selection
+                    // });
+                  } catch (error) {
+                    console.log("error on page update " + error);
+                  }
+                }}
+              >
+                <Text
+                  selectable={true}
+                  style={[
+                    {
+                      width: !focused ? frame.width - 80 : 1,
+                      height: !focused ? "auto" : 1,
+                    },
+                    styles.output,
+                  ]}
+                >
+                  {navStateUrlCutted}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                disabled={clearInputBtnPressed}
+                onPress={handleClearInput}
+              >
+                {clearInputBtnPressed ? (
+                  <Ionicons name="checkmark-done" size={24} color="white" />
+                ) : (
+                  <AntDesign name="delete" size={24} color="white" />
+                )}
+              </TouchableOpacity>
+            </View>
+            <View style={styles.btnContainer}>
+              <TouchableOpacity disabled={copyBtnPressed} onPress={handleCopy}>
+                {copyBtnPressed ? (
+                  <Ionicons name="checkmark-done" size={24} color="white" />
+                ) : (
+                  <FontAwesome name="copy" size={24} color="white" />
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setFocused(false);
+                  webviewRef.current?.goBack();
+                }}
+              >
+                <FontAwesome name="backward" size={24} color="white" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setFocused(false);
+                  webviewRef.current?.goForward();
+                }}
+              >
+                <AntDesign name="forward" size={24} color="white" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setFocused(false);
+                  webviewRef.current?.stopLoading();
+                }}
+              >
+                <FontAwesome name="stop" size={24} color="white" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setFocused(false);
+                  webviewRef.current?.reload();
+                }}
+              >
+                <AntDesign name="reload1" size={24} color="white" />
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+        )}
+      </TouchableOpacity>
       {valid ? (
         <TouchableOpacity onPress={handlePressNavBar} style={{ flex: 1 }}>
           <WebView
             // onTouchStart={(e) => console.log("Touch Start:", e.nativeEvent)}
             // onTouchMove={(e) => console.log("Touch Move:", e.nativeEvent)}
             ref={webviewRef}
-            userAgent={userAgent || ""}
+            userAgent={
+              address.startsWith("https://twitter.com") ? "" : userAgent
+            }
             originWhitelist={["http://*", "https://*", "intent://*"]}
             source={{
               uri: address,
@@ -351,10 +400,12 @@ const Browser = () => {
             onError={({ nativeEvent }) =>
               console.log("WebView error:", nativeEvent.description)
             }
-            // forceDarkOn={true}
+            forceDarkOn={true}
             injectedJavaScript={INJECTED_JAVASCRIPT}
             onMessage={(event) => {
-              // console.log("event.nativeEvent.data >>>>" + event.nativeEvent.data);
+              console.log(
+                "event.nativeEvent.data >>>>" + event.nativeEvent.data,
+              );
             }}
             startInLoadingState={true}
             onLoadStart={() => setIsLoaded(true)}
