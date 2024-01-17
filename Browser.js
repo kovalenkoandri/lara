@@ -27,6 +27,7 @@ import { Fontisto } from "@expo/vector-icons";
 import Constants from "expo-constants";
 import { onFetchUpdateAsync } from "./utils/checkUpdates";
 import * as ScreenOrientation from "expo-screen-orientation";
+import { INJECTED_DARK, INJECTED_LIGHT } from "./injected";
 
 const Browser = () => {
   // useEffect(() => {
@@ -35,10 +36,13 @@ const Browser = () => {
   const insets = useSafeAreaInsets();
   const frame = useSafeAreaFrame();
   const [address, setAddress] = useState(
-    // 'https://prom.ua/'
-    "https://olx.ua",
+    // "https://prom.ua/",
+    // "https://olx.ua",
+    // "https://au.yahoo.com"
+    // "yandex.ru"
+    // "https://chat.openai.com"
     // 'https://medium.com/geekculture/first-class-push-notifications-for-expo-apps-4bd7bbb9a01a'
-    // "https://google.com",
+    "https://google.com",
   );
   const [progress, setProgress] = useState(0);
   const [isLoaded, setIsLoaded] = useState(true);
@@ -57,14 +61,6 @@ const Browser = () => {
   const [darkMode, setDarkMode] = useState(true);
   const darkModeRef = useRef(true);
   const [userAgent, setUserAgent] = useState("");
-
-  const toggleDarkMode = () => {
-    // Update the value in the ref directly
-    darkModeRef.current = !darkModeRef.current;
-    setDarkMode((mode) => !mode);
-    // Perform any other actions based on the updated value
-    console.log("Dark mode is now:", darkModeRef.current);
-  };
 
   const slideAnim = useRef(new Animated.Value(0)).current;
 
@@ -145,13 +141,7 @@ const Browser = () => {
 
   const webviewRef = useRef(null);
   const handleNavigationStateChange = (navState) => {
-    // one way to handle errors is via query string
-    // if (navState.url.includes("?errors=true")) {
-    //   webviewRef.current?.stopLoading();
-    // }
-    handleInjectJavaScript();
     setNavStateUrl((oldUrl) => {
-      // Calculate the desired number of characters based on a percentage of frame width
       let startValue = oldUrl;
       const desiredCharacters = Math.floor(frame.width * 0.06);
       const trimmedValue = startValue.slice(0, desiredCharacters);
@@ -202,49 +192,6 @@ const Browser = () => {
   const onOrientationChange = (event) => {
     webviewRef.current?.reload();
   };
-  // window.ReactNativeWebView.postMessage(JSON.stringify(window.getComputedStyle(document.body).backgroundColor));
-  // window.ReactNativeWebView.postMessage(JSON.stringify(document.body.style.backgroundColor
-  // window.ReactNativeWebView.postMessage(JSON.stringify(document.body.style.color = "rgba(255, 255, 255, 1.0)"));
-  // window.ReactNativeWebView.postMessage(JSON.stringify(document.body.style.fontSize = "2em")));
-  // window.ReactNativeWebView.postMessage(JSON.stringify(window.location.href));
-  // window.ReactNativeWebView.postMessage(JSON.stringify(document.body.style.backgroundColor = "rgba(52, 53, 65, 1.0)"));
-  const INJECTED_DARK = `
-
-  // function applyBackgroundColorToDescendants(element, color) {
-  //   element.style.backgroundColor = color;
-
-  //   for (let i = 0; i < element.children.length; i++) {
-  //     const child = element.children[i];
-  //     applyBackgroundColorToDescendants(child, color);
-  //   }
-  // }
-  function dark() {
-    // const currentBackgroundColor = window.getComputedStyle(document.body).backgroundColor;
-    // const bodyElement = document.body;
-    // applyBackgroundColorToDescendants(bodyElement, 'pink');
-    // document.querySelector("html").style.filter = "invert(100%)";
-    document.querySelectorAll(':not(a, img, picture, svg, [style*="background-image"])').forEach(element => {
-  element.style.filter = 'invert(100%)';
-});
-    // document
-    //   .querySelectorAll('img, picture, svg, [style*="background-image"]')
-    //   .forEach((element) => {
-    //     element.style.filter = "invert(100%)";
-    //   });
-    // window.ReactNativeWebView.postMessage(JSON.stringify({ invertedBackgroundColor }));
-  }
-  dark();
-  `;
-  const INJECTED_LIGHT = `function light() {
-    document.querySelector("html").style.filter = "invert(0%)";
-    document
-      .querySelectorAll('img, picture, svg, [style*="background-image"]')
-      .forEach((element) => {
-        element.style.filter = "invert(0%)";
-      });
-  }
-  light();`;
-
   const handleClearInput = () => {
     setAddress("https://");
     setNavStateUrlCutted("https://");
@@ -258,6 +205,8 @@ const Browser = () => {
     }, 2000);
   };
   const handleInjectJavaScript = () => {
+    darkModeRef.current = !darkModeRef.current;
+    setDarkMode((mode) => !mode);
     darkModeRef.current
       ? webviewRef.current?.injectJavaScript(INJECTED_DARK)
       : webviewRef.current?.injectJavaScript(INJECTED_LIGHT);
@@ -305,14 +254,7 @@ const Browser = () => {
                   onChangeText={handleAddress}
                   placeholder={"Enter web-address"}
                   placeholderTextColor="#e8e8e8"
-                  style={[
-                    {
-                      // width: focused ? frame.width - 80 : 1,
-                      // height: focused ? "auto" : 1,
-                      // opacity: focused ? 1 : 0
-                    },
-                    styles.input,
-                  ]}
+                  style={[styles.input]}
                   multiline={focused}
                   onBlur={handleBlur}
                   onFocus={handleFocus}
@@ -398,7 +340,6 @@ const Browser = () => {
               <TouchableOpacity
                 onPress={() => {
                   setFocused(false);
-                  toggleDarkMode();
                   handleInjectJavaScript();
                 }}
               >
@@ -419,7 +360,7 @@ const Browser = () => {
             // onTouchMove={(e) => console.log("Touch Move:", e.nativeEvent)}
             ref={webviewRef}
             userAgent={
-              address.startsWith("https://twitter.com") ? "" : userAgent
+              address.startsWith("https://chat.openai.com") ? userAgent : ""
             }
             originWhitelist={["http://*", "https://*", "intent://*"]}
             source={{
@@ -430,10 +371,7 @@ const Browser = () => {
             onError={({ nativeEvent }) =>
               console.log("WebView error:", nativeEvent.description)
             }
-            forceDarkOn={true}
-            injectedJavaScript={
-              darkModeRef.current ? INJECTED_DARK : INJECTED_LIGHT
-            }
+            injectedJavaScript={INJECTED_DARK} // on app load
             onMessage={(event) => {
               console.log(
                 "event.nativeEvent.data >>>>" + event.nativeEvent.data,
