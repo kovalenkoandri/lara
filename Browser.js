@@ -21,6 +21,9 @@ import * as Progress from "react-native-progress";
 import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
+import { Fontisto } from "@expo/vector-icons";
 import Constants from "expo-constants";
 import { onFetchUpdateAsync } from "./utils/checkUpdates";
 import * as ScreenOrientation from "expo-screen-orientation";
@@ -33,9 +36,9 @@ const Browser = () => {
   const frame = useSafeAreaFrame();
   const [address, setAddress] = useState(
     // 'https://prom.ua/'
-    // 'https://olx.ua'
+    "https://olx.ua",
     // 'https://medium.com/geekculture/first-class-push-notifications-for-expo-apps-4bd7bbb9a01a'
-    "https://google.com",
+    // "https://google.com",
   );
   const [progress, setProgress] = useState(0);
   const [isLoaded, setIsLoaded] = useState(true);
@@ -51,8 +54,17 @@ const Browser = () => {
   const [clearInputBtnPressed, setClearInputBtnPressed] = useState(false);
 
   const [showNavBar, setShowNavBar] = useState(true);
-
+  const [darkMode, setDarkMode] = useState(true);
+  const darkModeRef = useRef(true);
   const [userAgent, setUserAgent] = useState("");
+
+  const toggleDarkMode = () => {
+    // Update the value in the ref directly
+    darkModeRef.current = !darkModeRef.current;
+    setDarkMode((mode) => !mode);
+    // Perform any other actions based on the updated value
+    console.log("Dark mode is now:", darkModeRef.current);
+  };
 
   const slideAnim = useRef(new Animated.Value(0)).current;
 
@@ -98,7 +110,6 @@ const Browser = () => {
     try {
       const userAgentRef = await Constants.getWebViewUserAgentAsync();
       setUserAgent(userAgentRef);
-      // console.log("userAgentRef ", userAgentRef);
     } catch (error) {
       console.log("fetch user agent error ", error);
     }
@@ -138,6 +149,7 @@ const Browser = () => {
     // if (navState.url.includes("?errors=true")) {
     //   webviewRef.current?.stopLoading();
     // }
+    handleInjectJavaScript();
     setNavStateUrl((oldUrl) => {
       // Calculate the desired number of characters based on a percentage of frame width
       let startValue = oldUrl;
@@ -196,28 +208,43 @@ const Browser = () => {
   // window.ReactNativeWebView.postMessage(JSON.stringify(document.body.style.fontSize = "2em")));
   // window.ReactNativeWebView.postMessage(JSON.stringify(window.location.href));
   // window.ReactNativeWebView.postMessage(JSON.stringify(document.body.style.backgroundColor = "rgba(52, 53, 65, 1.0)"));
-  const INJECTED_JAVASCRIPT = `
- 
-// function applyBackgroundColorToDescendants(element, color) {
-//   element.style.backgroundColor = color;
+  const INJECTED_DARK = `
 
-//   for (let i = 0; i < element.children.length; i++) {
-//     const child = element.children[i];
-//     applyBackgroundColorToDescendants(child, color);
-//   }
-// }
-  (function() {
-// const currentBackgroundColor = window.getComputedStyle(document.body).backgroundColor;
-// const bodyElement = document.body;
-// applyBackgroundColorToDescendants(bodyElement, 'pink');
-document.querySelector('html').style.filter = 'invert(100%)';
-document.querySelectorAll('img, picture, svg, [style*="background-image"]').forEach(element => {
+  // function applyBackgroundColorToDescendants(element, color) {
+  //   element.style.backgroundColor = color;
+
+  //   for (let i = 0; i < element.children.length; i++) {
+  //     const child = element.children[i];
+  //     applyBackgroundColorToDescendants(child, color);
+  //   }
+  // }
+  function dark() {
+    // const currentBackgroundColor = window.getComputedStyle(document.body).backgroundColor;
+    // const bodyElement = document.body;
+    // applyBackgroundColorToDescendants(bodyElement, 'pink');
+    // document.querySelector("html").style.filter = "invert(100%)";
+    document.querySelectorAll(':not(a, img, picture, svg, [style*="background-image"])').forEach(element => {
   element.style.filter = 'invert(100%)';
 });
-// window.ReactNativeWebView.postMessage(JSON.stringify({ invertedBackgroundColor }));
+    // document
+    //   .querySelectorAll('img, picture, svg, [style*="background-image"]')
+    //   .forEach((element) => {
+    //     element.style.filter = "invert(100%)";
+    //   });
+    // window.ReactNativeWebView.postMessage(JSON.stringify({ invertedBackgroundColor }));
+  }
+  dark();
+  `;
+  const INJECTED_LIGHT = `function light() {
+    document.querySelector("html").style.filter = "invert(0%)";
+    document
+      .querySelectorAll('img, picture, svg, [style*="background-image"]')
+      .forEach((element) => {
+        element.style.filter = "invert(0%)";
+      });
+  }
+  light();`;
 
-})();
-    `;
   const handleClearInput = () => {
     setAddress("https://");
     setNavStateUrlCutted("https://");
@@ -230,10 +257,10 @@ document.querySelectorAll('img, picture, svg, [style*="background-image"]').forE
       setClearInputBtnPressed(false);
     }, 2000);
   };
-  const handleTouchableOpacityPress = () => {
-    console.log(webviewRef);
-    // Execute the injected JavaScript code when TouchableOpacity is pressed
-    webviewRef.current?.injectJavaScript(INJECTED_JAVASCRIPT);
+  const handleInjectJavaScript = () => {
+    darkModeRef.current
+      ? webviewRef.current?.injectJavaScript(INJECTED_DARK)
+      : webviewRef.current?.injectJavaScript(INJECTED_LIGHT);
   };
   return (
     <SafeAreaView style={[{ marginTop: insets.top }, styles.safeAreaView]}>
@@ -247,9 +274,6 @@ document.querySelectorAll('img, picture, svg, [style*="background-image"]').forE
             width={null}
           />
         )}
-        <TouchableOpacity onPress={handleTouchableOpacityPress}>
-          <Text>ttttt</Text>
-        </TouchableOpacity>
         {showNavBar && (
           <Animated.View
             style={{
@@ -299,16 +323,9 @@ document.querySelectorAll('img, picture, svg, [style*="background-image"]').forE
                 onPress={async () => {
                   try {
                     setFocused(true);
-                    // await webviewRef.current?.reload();
                     await handleCopy();
                     await handlePaste();
                     setFocused(true);
-                    // console.log(textInputRef.current.setSelection);
-                    // textInputRef.current?.focus();
-                    // textInputRef.current.setSelection({
-                    //   start: 0, // start index of the selection
-                    //   end: 1000 // end index of the selection
-                    // });
                   } catch (error) {
                     console.log("error on page update " + error);
                   }
@@ -378,6 +395,19 @@ document.querySelectorAll('img, picture, svg, [style*="background-image"]').forE
               >
                 <AntDesign name="reload1" size={24} color="white" />
               </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setFocused(false);
+                  toggleDarkMode();
+                  handleInjectJavaScript();
+                }}
+              >
+                {darkMode ? (
+                  <Fontisto name="night-clear" size={24} color="white" />
+                ) : (
+                  <Feather name="sun" size={24} color="white" />
+                )}
+              </TouchableOpacity>
             </View>
           </Animated.View>
         )}
@@ -401,7 +431,9 @@ document.querySelectorAll('img, picture, svg, [style*="background-image"]').forE
               console.log("WebView error:", nativeEvent.description)
             }
             forceDarkOn={true}
-            injectedJavaScript={INJECTED_JAVASCRIPT}
+            injectedJavaScript={
+              darkModeRef.current ? INJECTED_DARK : INJECTED_LIGHT
+            }
             onMessage={(event) => {
               console.log(
                 "event.nativeEvent.data >>>>" + event.nativeEvent.data,
