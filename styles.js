@@ -1,0 +1,80 @@
+import {
+  StyleSheet,
+} from "react-native";
+export const styles = StyleSheet.create({
+  safeAreaView: {
+    flex: 1,
+    borderColor: "#767577",
+    borderWidth: 1,
+    borderRadius: 10,
+    backgroundColor: "rgba(52, 53, 65, 1.0)",
+  },
+  inputContainer: {
+    flexDirection: "row",
+    maxHeight: 160,
+    alignItems: "center",
+    borderColor: "#767577",
+    borderWidth: 1,
+    marginLeft: "auto",
+    marginRight: "auto",
+    marginBottom: 20,
+  },
+  pasteBtn: {
+    marginRight: 20,
+  },
+  input: {
+    padding: 4,
+    color: "#e8e8e8",
+    backgroundColor: "#2f2f3d",
+    borderColor: "#767577",
+    borderWidth: 1,
+    borderRadius: 10,
+    width: "99%",
+    fontSize: 24,
+  },
+  btnContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  copyBtn: {
+    height: 40,
+    marginTop: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    borderColor: "#767577",
+    borderWidth: 1,
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
+  iconCopy: {
+    marginRight: 20,
+  },
+  output: {
+    color: "#e8e8e8",
+    backgroundColor: "#2f2f3d",
+    borderColor: "#767577",
+    borderWidth: 1,
+    borderRadius: 10,
+    fontSize: 24,
+    marginRight: -20,
+    overflow: "hidden",
+  },
+  webView: {
+    borderRadius: 100,
+    borderColor: "#767577",
+    borderWidth: 1,
+  },
+  ensureText: {
+    fontSize: 32,
+    color: "#e8e8e8",
+    textAlign: "center",
+    height: 160,
+    textAlignVertical: "center",
+  },
+  ensureTextHighlighted: {
+    color: "red",
+  },
+});
